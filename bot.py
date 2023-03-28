@@ -31,8 +31,8 @@ def predict(message):
 def ask_company(message):
     text = message.text
     if text.lower() not in ['газпром', 'яндекс', 'аэрофлот', 'сбербанк']:
-        if text.lower() == 'назад':
-            bot.register_next_step_handler(message, predict)
+        # if text.lower() == 'назад':
+        #     bot.register_next_step_handler(message, predict)
         msg = bot.send_message(message.chat.id, "Неправильное название компании. Попробуй еще раз",
                                reply_markup=company_markup)
         bot.register_next_step_handler(msg, ask_company)
@@ -47,8 +47,8 @@ def ask_company(message):
 
 def ask_date(message):
     text = message.text
-    if text.lower() == 'назад':
-        bot.register_next_step_handler(message, ask_company)
+    # if text.lower() == 'назад':
+    #     bot.register_next_step_handler(message, ask_company)
     date = dateparser.parse(text)
     if date is None:
         msg = bot.send_message(message.chat.id, "Неправильный формат даты. Попробуй еще раз")
