@@ -1,5 +1,5 @@
 from telebot import types, TeleBot
-from constants import WELCOME_MSG, ABOUT_MSG, map_companies, TOKEN
+from constants import WELCOME_MSG, ABOUT_MSG, MAP_COMPANIES, TOKEN, RESULT_FLG, REVERSE_MAP_COMPANIES
 import dateparser
 import requests
 import json
@@ -30,13 +30,13 @@ def predict(message):
 
 def ask_company(message):
     text = message.text
-    if text.lower() not in ['газпром', 'яндекс', 'аэрофлот']:
+    if text.lower() not in ['газпром', 'яндекс', 'аэрофлот', 'сбербанк']:
         msg = bot.send_message(message.chat.id, "Неправильное название компании. Попробуй еще раз",
                                reply_markup=company_markup)
         bot.register_next_step_handler(msg, ask_company)
-    user_dict[message.chat.id].company = map_companies[text.lower()]
+    user_dict[message.chat.id].company = MAP_COMPANIES[text.lower()]
     dates = requests.post('http://localhost:8080/get_dates',
-                          data=json.loads(json.dumps({"company": map_companies[text.lower()]})))
+                          data=json.loads(json.dumps({"company": MAP_COMPANIES[text.lower()]})))
     l, r = dates.json()["dates"].split('/')
     msg = bot.send_message(message.chat.id, f"Введи, пожалуйста, дату, на которую ты хочешь получить прогноз в формате ДД.ММ.ГГГГ.\nДопустимый диапазон дат для акций {text.capitalize()}: от {l} до {r}")
     bot.register_next_step_handler(msg, ask_date)
@@ -56,10 +56,10 @@ def ask_date(message):
         "req_date": req_date,
     }
     res = requests.post('http://localhost:8080/predict', data=json.loads(json.dumps(data)))
-    if res.json()['flg'] == 1:
-        bot.send_message(message.chat.id, f"Акции {company.capitalize()} {req_date} *вырастут*\nВведи новую дату или команду /predict, чтобы выбрать другую компанию", parse_mode="Markdown")
-    else:
-        bot.send_message(message.chat.id, f"Акции {company.capitalize()} {req_date} *упадут*\nВведи новую дату или команду /predict, чтобы выбрать другую компанию", parse_mode="Markdown")
+    res_flg = res.json()['flg']
+    msg = bot.send_message(message.chat.id, f"Акции {REVERSE_MAP_COMPANIES[company]} {req_date} {RESULT_FLG[res_flg]}\nВведи новую дату или команду /predict, чтобы выбрать другую компанию",
+                           parse_mode="Markdown")
+    bot.register_next_step_handler(msg, ask_date)
 
 
 @bot.message_handler(content_types=["text"])

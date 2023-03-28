@@ -11,8 +11,20 @@ ABOUT_MSG = """
 """
 TOKEN = "6263825425:AAG2n_l9hKRFd2ARurIs4_tlO13liSfW6vc"
 
-map_companies = {
+MAP_COMPANIES = {
     "газпром" : "gazp",
     "яндекс" : "yand",
     "аэрофлот" : "aero",
+    "сбербанк": "sber",
 }
+
+REVERSE_MAP_COMPANIES = {
+    "gazp": "Газпром",
+    "yand": "Яндекс",
+    "aero": "Аэрофлот",
+    "sber": "Сбербанк",
+}
+
+RESULT_FLG = {1: "*вырастут*",
+              0: "*упадут*",
+              }
