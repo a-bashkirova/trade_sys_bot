@@ -57,18 +57,18 @@ def ask_date(message):
         date = dateparser.parse(text)
         if date is None:
             msg = bot.send_message(message.chat.id, "Неправильный формат даты. Попробуй еще раз")
-            bot.register_next_step_handler(msg, ask_date)
-        req_date = f"{date.day}/{date.month}/{date.year}"
-        company = user_dict[message.chat.id].company
-        data = {
-            "rq_id": "1",
-            "company": company,
-            "req_date": req_date,
-        }
-        res = requests.post('http://localhost:8080/predict', data=json.loads(json.dumps(data)))
-        res_flg = res.json()['flg']
-        msg = bot.send_message(message.chat.id, f"Акции {REVERSE_MAP_COMPANIES[company]} {req_date} {RESULT_FLG[res_flg]}\nВведи новую дату или команду /predict, чтобы выбрать другую компанию",
-                               parse_mode="Markdown", reply_markup=default_markup)
+        else:
+            req_date = f"{date.day}/{date.month}/{date.year}"
+            company = user_dict[message.chat.id].company
+            data = {
+                "rq_id": "1",
+                "company": company,
+                "req_date": req_date,
+            }
+            res = requests.post('http://localhost:8080/predict', data=json.loads(json.dumps(data)))
+            res_flg = res.json()['flg']
+            msg = bot.send_message(message.chat.id, f"Акции {REVERSE_MAP_COMPANIES[company]} {req_date} {RESULT_FLG[res_flg]}\nВведи новую дату или нажми 'Назад', чтобы выбрать другую компанию",
+                                   parse_mode="Markdown", reply_markup=default_markup)
         bot.register_next_step_handler(msg, ask_date)
 
 
