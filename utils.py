@@ -4,3 +4,5 @@ class User:
         self.id = id
         self.company = None
         self.date = None
+        self.min_date = None
+        self.max_date = None
