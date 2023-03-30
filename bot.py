@@ -42,6 +42,7 @@ def ask_company(message):
     dates = requests.post('http://localhost:8080/get_dates',
                           data=json.loads(json.dumps({"company": MAP_COMPANIES[text.lower()]})))
     l, r = dates.json()["dates"].split('/')
+    user_dict[message.chat.id].min_date, user_dict[message.chat.id].max_date = dateparser.parse(l), dateparser.parse(r)
     msg = bot.send_message(message.chat.id, f"Введи, пожалуйста, дату, на которую ты хочешь получить прогноз в формате ДД.ММ.ГГГГ.\nДопустимый диапазон дат для акций {text.capitalize()}: от {l} до {r}",
                            reply_markup=default_markup)
     bot.register_next_step_handler(msg, ask_date)
@@ -56,7 +57,11 @@ def ask_date(message):
     else:
         date = dateparser.parse(text)
         if date is None:
-            msg = bot.send_message(message.chat.id, "Неправильный формат даты. Попробуй еще раз")
+            msg = bot.send_message(message.chat.id, "Неправильный формат даты. Попробуй еще раз",
+                                   reply_markup=default_markup)
+        elif date < user_dict[message.chat.id].min_date or date > user_dict[message.chat.id].max_date:
+            msg = bot.send_message(message.chat.id, "Указанная дата не помещается в диапазон. Попробуй еще раз",
+                                   reply_markup=default_markup)
         else:
             req_date = f"{date.day}/{date.month}/{date.year}"
             company = user_dict[message.chat.id].company
