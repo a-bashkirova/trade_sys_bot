@@ -63,7 +63,7 @@ def ask_date(message):
             msg = bot.send_message(message.chat.id, "Указанная дата не помещается в диапазон. Попробуй еще раз",
                                    reply_markup=default_markup)
         else:
-            req_date = f"{date.day}/{date.month}/{date.year}"
+            req_date = f"{date.year}-{date.month}-{date.day}"
             company = user_dict[message.chat.id].company
             data = {
                 "rq_id": "1",
