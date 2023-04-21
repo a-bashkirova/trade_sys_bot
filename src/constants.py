@@ -9,7 +9,7 @@ WELCOME_MSG = """
 ABOUT_MSG = """
 Бот и модель прогноза разработаны студенткой ВМК Поляковой Аллой
 """
-TOKEN = "your token"
+TOKEN = "YOUR TOKEN"
 
 MAP_COMPANIES = {
     "газпром" : "gazp",

@@ -1,10 +1,13 @@
-from telebot import types, TeleBot
-from constants import WELCOME_MSG, ABOUT_MSG, MAP_COMPANIES, TOKEN, RESULT_FLG, REVERSE_MAP_COMPANIES
+from telebot import TeleBot
+from src.constants import WELCOME_MSG, ABOUT_MSG, MAP_COMPANIES, TOKEN, RESULT_FLG, REVERSE_MAP_COMPANIES
 import dateparser
 import requests
 import json
-from markups import company_markup, default_markup
-from utils import User
+from src.markups import company_markup, default_markup
+from utils.utils import User
+import locale
+
+locale.setlocale(locale.LC_TIME, 'ru')
 
 bot = TeleBot(TOKEN)
 user_dict = {}
@@ -55,7 +58,7 @@ def ask_date(message):
                                reply_markup=company_markup)
         bot.register_next_step_handler(msg, ask_company)
     else:
-        date = dateparser.parse(text)
+        date = dateparser.parse(text, languages=['ru'])
         if date is None:
             msg = bot.send_message(message.chat.id, "Неправильный формат даты. Попробуй еще раз",
                                    reply_markup=default_markup)
@@ -63,7 +66,7 @@ def ask_date(message):
             msg = bot.send_message(message.chat.id, "Указанная дата не помещается в диапазон. Попробуй еще раз",
                                    reply_markup=default_markup)
         else:
-            req_date = f"{date.day}/{date.month}/{date.year}"
+            req_date = f"{date.year}-{date.month}-{date.day}"
             company = user_dict[message.chat.id].company
             data = {
                 "rq_id": "1",
@@ -72,7 +75,7 @@ def ask_date(message):
             }
             res = requests.post('http://localhost:8080/predict', data=json.loads(json.dumps(data)))
             res_flg = res.json()['flg']
-            msg = bot.send_message(message.chat.id, f"Акции {REVERSE_MAP_COMPANIES[company]} {req_date} {RESULT_FLG[res_flg]}\nВведи новую дату или нажми 'Назад', чтобы выбрать другую компанию",
+            msg = bot.send_message(message.chat.id, f"Акции {REVERSE_MAP_COMPANIES[company]} {date.strftime('%d %b %Y')} {RESULT_FLG[res_flg]}\nВведи новую дату или нажми 'Назад', чтобы выбрать другую компанию",
                                    parse_mode="Markdown", reply_markup=default_markup)
         bot.register_next_step_handler(msg, ask_date)
 
